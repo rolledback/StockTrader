@@ -10,13 +10,19 @@ public class Stock {
     }
 
     public int getValue(int tick) {
-        return 0;
+        return 1;
     }
 
-}
+    public void decrementAvailable(int quantity) {
+        if(quantity > numAvailable) {
+            throw new IllegalArgumentException("Market should not be asking to decrement more stock than is availble.");
+        }
+        else {
+            numAvailable -= quantity;
+        }
+    }
 
-// this may not be needed, still thinking
-enum STOCK_TYPE {
-    STABLE,
-    VOLITALE
-};
+    public void incrementAvailable(int quantity) {
+        numAvailable += quantity;
+    }
+}
