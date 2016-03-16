@@ -6,7 +6,7 @@ import java.util.Random;
 * Simulates a stock market. Currently  *
 * only supports a single trader.       *
 \**************************************/
-public class Market {
+public class Market implements Runnable {
     
     private final String id = Util.MARKET_ID;
     private final int startingTraderMoney = 500;
@@ -20,6 +20,8 @@ public class Market {
     // trader id -> trader
     private HashMap<String, Trader> traders;
 
+    private MarketServer server;
+
     public Market(int maxCycles, int cycleLength) {
         this.cycleNum = 0;
         this.maxCycles = maxCycles;
@@ -27,6 +29,20 @@ public class Market {
         this.tradingRecord = new ArrayList<ActionRecord>();
         this.stocks = new HashMap<String, Stock>();
         this.traders = new HashMap<String, Trader>();
+
+        try {
+            System.out.println("STARTING MARKET SERVER");
+            server = new MarketServer(this);
+        }
+        catch(Exception e) {
+            System.out.println("UNABLE TO START/RUN MARKET SERVER");
+            System.exit(0);
+        }
+        finally {
+            System.out.println("MARKET SERVER STARTED");
+            Thread marketServerThread = new Thread(server, "Market Server");
+            marketServerThread.start();
+        }
     }
 
     // creates a new trader on the market
@@ -47,19 +63,26 @@ public class Market {
         return newId;
     }
 
-    // this needs to run on its own thread
     public void run() {
         while(cycleNum < maxCycles) {
-            // every cycleLength miliseconds, stock prices update
-            // no buying/selling should be allowed at this time (lock needed?)
-            cycleNum++;
+            try {
+                System.out.println("Updating in " + cycleLength + " miliseconds.");
+                Thread.sleep(cycleLength);
+            }
+            catch(InterruptedException e) {}
+            incrementCycle();
         }
+    }
+
+    public synchronized void incrementCycle() {
+        System.out.println("Updating.\n");
+        cycleNum++;
     }
 
     // this is called on main thread when buying stock from the market
     // if method returns false, the buying was not succesful
     // if method returns true, the buying was successful
-    public boolean buyStock(String stockId, String traderId, int quantity) {
+    public synchronized  boolean buyStock(String stockId, String traderId, int quantity) {
         Stock toBuy = stocks.get(stockId);
         Trader buyer = traders.get(traderId);
 
@@ -82,7 +105,7 @@ public class Market {
 
     // this is called on main thread when selling stock back to the market
     // if method returns true, the selling was successful
-    public boolean sellStock(String stockId, String traderId, int quantity) {
+    public synchronized boolean sellStock(String stockId, String traderId, int quantity) {
         Stock toSell = stocks.get(stockId);
         Trader seller = traders.get(traderId);
 
@@ -106,7 +129,7 @@ public class Market {
     }
 
     // returns map of stock id -> current value
-    public HashMap<String, Integer> getStockValues() {
+    public synchronized HashMap<String, Integer> getStockValues() {
         // TODO
         return null;
     }

@@ -1,8 +1,16 @@
+import java.util.Scanner;
+
 public class StockTrader {
 
     public static void main(String[] args) {
         Market market = new Market(5000, 500);
+        market.printLog();
 
+        // Thread marketRunThread = new Thread(market);
+        // marketRunThread.start();
+    }
+
+    public void implementationTest(Market market) {
         String traderA = market.registerTrader();
         System.out.println("Trader A: " + traderA);
         String traderB = market.registerTrader();
@@ -22,6 +30,5 @@ public class StockTrader {
         market.buyStock(stockA, traderB, 400);
         market.buyStock(stockB, traderB, 200);
 
-        market.printLog();
     }
 }
