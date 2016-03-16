@@ -23,21 +23,34 @@ public class MarketServer implements Runnable {
     public void run() {
         while(true) {
             try {
-                System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
-
+                System.out.println("Waiting for client to connect.");
                 server = serverSocket.accept();                
-                System.out.println("Just connected to " + server.getRemoteSocketAddress());
+                System.out.println("Client connected from " + server.getRemoteSocketAddress());
 
                 inStream = new DataInputStream(server.getInputStream());
-                System.out.println(inStream.readUTF());
-
                 outStream = new DataOutputStream(server.getOutputStream());
-                outStream.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress() + "\nGoodbye!");
+
+                while(true) {
+                    String message = inStream.readUTF();
+                    String response = "";
+
+                    // big switch to determine response, should probably be moved to a method
+                    if(message.equals("REGISTER")) {
+                        response = owner.registerTrader();
+                    }
+                    else if(message.equals("QUIT")) {
+                        System.out.println("Client requesting to end session.\n");
+                        break;
+                    }
+
+                    // always write response, client will look for it if they need to
+                    outStream.writeUTF(response);
+                }
 
                 server.close();
             }
             catch(SocketTimeoutException s) {
-                System.out.println("Socket timed out!");
+                System.out.println("Socket timed out.");
                 break;
             }
             catch(IOException e) {

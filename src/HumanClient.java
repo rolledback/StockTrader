@@ -4,7 +4,15 @@ import java.io.*;
 public class HumanClient {
 
     public static void main(String[] args) {
-        HumanClient one = new HumanClient();
+        try {
+            HumanClient one = new HumanClient();
+            String myId = one.registerWithMarket();
+            if(myId != null && myId != "") {
+                System.out.println("Registration succesful. My trader ID is " + myId + ".");
+                one.closeConnection();
+            }
+        }
+        catch(Exception e) {}
     }
 
     private Socket client;
@@ -14,22 +22,35 @@ public class HumanClient {
     private final String address = "127.0.0.1";
     private final int port = 5656;
 
-    public HumanClient() {
-        try {
-            System.out.println("Connecting to " + address + " on port " + port);
+    public HumanClient() throws IOException {
+        System.out.println("Connecting to market at " + address + " on port " + port);
 
-            client = new Socket(address, port);
-            System.out.println("Just connected to " + client.getRemoteSocketAddress());
+        client = new Socket(address, port);
+        System.out.println("Succesfully connected to market at " + client.getRemoteSocketAddress());
 
-            outStream = new DataOutputStream(client.getOutputStream());
-            outStream.writeUTF("Hello from " + client.getLocalSocketAddress());
+        outStream = new DataOutputStream(client.getOutputStream());
+        inStream = new DataInputStream(client.getInputStream());
+    }
 
-            DataInputStream in = new DataInputStream(client.getInputStream());
-            System.out.println("Server says " + in.readUTF());
-            client.close();
+    // object should not send messages directly
+    // this should only help methods with specific actions send a message
+    private String sendMessage(String message, boolean expectReply) throws IOException {
+        outStream.writeUTF(message);
+        if(expectReply) {
+            return inStream.readUTF();
         }
-        catch (IOException e) {
-            System.out.println(e);
+        else {
+            return null;
         }
+    }
+
+    public String registerWithMarket() throws IOException {
+        String myId = sendMessage("REGISTER", true);
+        return myId;
+    }
+
+    public void closeConnection() throws IOException {
+        sendMessage("QUIT", false);
+        client.close();
     }
 }

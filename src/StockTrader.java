@@ -6,8 +6,8 @@ public class StockTrader {
         Market market = new Market(5000, 500);
         market.printLog();
 
-        // Thread marketRunThread = new Thread(market);
-        // marketRunThread.start();
+        Thread marketRunThread = new Thread(market, "Market Runner");
+        //marketRunThread.start();
     }
 
     public void implementationTest(Market market) {

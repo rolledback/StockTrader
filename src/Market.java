@@ -35,11 +35,11 @@ public class Market implements Runnable {
             server = new MarketServer(this);
         }
         catch(Exception e) {
-            System.out.println("UNABLE TO START/RUN MARKET SERVER");
+            System.out.println("UNABLE TO START/RUN MARKET SERVER\n");
             System.exit(0);
         }
         finally {
-            System.out.println("MARKET SERVER STARTED");
+            System.out.println("MARKET SERVER STARTED\n");
             Thread marketServerThread = new Thread(server, "Market Server");
             marketServerThread.start();
         }
@@ -120,6 +120,16 @@ public class Market implements Runnable {
             tradingRecord.add(new ActionRecord(id, stockId, traderId, quantity));
             return true;
         }
+    }
+
+    public void debugDump() {
+        System.out.println("Registered Traders:");
+        for(String id: traders.keySet()) {
+            System.out.println(id);
+        }
+        System.out.println();
+
+        printLog();
     }
 
     public void printLog() {
