@@ -9,6 +9,9 @@ public class HumanClient {
             String myId = one.registerWithMarket();
             if(myId != null && myId != "") {
                 System.out.println("Registration succesful. My trader ID is " + myId + ".");
+                System.out.println("Result of attempting to buy stock: " + one.buyStock("0IPC-HINL", 250));
+                System.out.println("Result of attempting to buy stock: " + one.buyStock("0IPC-HINL", 500));
+                System.out.println("Result of attempting to buy stock: " + one.buyStock("0IPC-HEL2", 250));
                 one.closeConnection();
             }
         }
@@ -18,6 +21,7 @@ public class HumanClient {
     private Socket client;
     private DataOutputStream outStream;
     private DataInputStream inStream;
+    private String id;
 
     private final String address = "127.0.0.1";
     private final int port = 5656;
@@ -44,9 +48,13 @@ public class HumanClient {
         }
     }
 
+    public String buyStock(String stockId, int amount) throws IOException {
+        return sendMessage("BUY " + stockId + " " + id + " " + amount, true);
+    }
+
     public String registerWithMarket() throws IOException {
-        String myId = sendMessage("REGISTER", true);
-        return myId;
+        id = sendMessage("REGISTER", true);
+        return id;
     }
 
     public void closeConnection() throws IOException {

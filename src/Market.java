@@ -82,24 +82,29 @@ public class Market implements Runnable {
     // this is called on main thread when buying stock from the market
     // if method returns false, the buying was not succesful
     // if method returns true, the buying was successful
-    public synchronized  boolean buyStock(String stockId, String traderId, int quantity) {
+    public synchronized RESULT buyStock(String stockId, String traderId, int quantity) {
+        if(!stocks.containsKey(stockId)) {
+            return RESULT.INVALID_STOCK;
+        }
+        if(!traders.containsKey(traderId)) {
+            return RESULT.INVALID_TRADER;
+        }
+
         Stock toBuy = stocks.get(stockId);
         Trader buyer = traders.get(traderId);
 
         if(toBuy.numAvailable < quantity || quantity == 0) {
-            // not enough stocks left to buy or trying to buy 0
-            return false;
+            return RESULT.INSUFFICIENT_SUPPLY;
         }
         else if(toBuy.getValue(cycleNum) * quantity > buyer.money) {
-            // not enough money to buy
-            return false;
+            return RESULT.INSUFFICIENT_FUNDS;
         }
         else {
             // ok to buy, remove stock from the market, and give to trader
             toBuy.decrementAvailable(quantity);
             buyer.addStock(stockId, quantity, toBuy.getValue(cycleNum));
             tradingRecord.add(new ActionRecord(traderId, stockId, id, quantity));
-            return true;
+            return RESULT.SUCCESS;
         }
     }
 

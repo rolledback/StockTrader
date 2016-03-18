@@ -4,10 +4,9 @@ public class StockTrader {
 
     public static void main(String[] args) {
         Market market = new Market(5000, 500);
-        market.printLog();
+        market.addStocks();
 
         Thread marketRunThread = new Thread(market, "Market Runner");
-        //marketRunThread.start();
     }
 
     public void implementationTest(Market market) {
@@ -29,6 +28,12 @@ public class StockTrader {
         market.buyStock(stockB, traderB, 600);
         market.buyStock(stockA, traderB, 400);
         market.buyStock(stockB, traderB, 200);
+    }
 
+    public void addStocks(Market market) {
+        String stockA = market.registerStock("ABC", 500);
+        System.out.println("Stock A: " + stockA);
+        String stockB = market.registerStock("XYZ", 500);
+        System.out.println("Stock B: " + stockB);
     }
 }
