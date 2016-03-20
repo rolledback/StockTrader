@@ -12,6 +12,7 @@ public class MarketServer implements Runnable {
     private DataOutputStream outStream;
 
     private Pattern buyStockPattern = Pattern.compile("BUY ([\\w-]+) ([\\w-]+) (\\d+)");
+    private Pattern sellStockPattern = Pattern.compile("SELL ([\\w-]+) ([\\w-]+) (\\d+)");
     private Matcher match;
 
     public MarketServer(Market owner) throws IOException {
@@ -48,12 +49,17 @@ public class MarketServer implements Runnable {
                         System.out.println("Client requesting to end session.\n");
                         break;
                     }
-                    else if((match = buyStockPattern.matcher(message)).matches()) {
+                    else {
                         try {
-                            result = owner.buyStock(match.group(1), match.group(2), Integer.parseInt(match.group(3)));
-                            response = result.toString();
+                            if((match = buyStockPattern.matcher(message)).matches()) {
+                                result = owner.buyStock(match.group(1), match.group(2), Integer.parseInt(match.group(3)));
+                            }
+                            else if((match = sellStockPattern.matcher(message)).matches()) {
+                                result = owner.sellStock(match.group(1), match.group(2), Integer.parseInt(match.group(3)));
+                            }
                         }
                         catch(Exception e) { /* don't worry about handling this at the moment */ }
+                        response = result.toString();
                     }
 
                     // always write response, client will look for it if they need to

@@ -111,19 +111,25 @@ public class Market implements Runnable {
     // this is called on main thread when selling stock back to the market
     // if method returns true, the selling was successful
     public synchronized boolean sellStock(String stockId, String traderId, int quantity) {
+        if(!stocks.containsKey(stockId)) {
+            return RESULT.INVALID_STOCK;
+        }
+        if(!traders.containsKey(traderId)) {
+            return RESULT.INVALID_TRADER;
+        }
+
         Stock toSell = stocks.get(stockId);
         Trader seller = traders.get(traderId);
 
         if(seller.ownedStocks.get(stockId) < quantity || quantity == 0) {
-            // not enough stocks to sell or trying to sell 0
-            return false;
+            return RESULT.INSUFFICIENT_SUPPLY;
         }
         else {
             // ok to sell, remove stock from the trader, and put in the market
             seller.removeStock(stockId, quantity, toSell.getValue(cycleNum));
             toSell.incrementAvailable(quantity);
             tradingRecord.add(new ActionRecord(id, stockId, traderId, quantity));
-            return true;
+            return RESULT.SUCCESS;
         }
     }
 
