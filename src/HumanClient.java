@@ -1,5 +1,12 @@
 import java.net.*;
 import java.io.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HumanClient {
 
@@ -9,13 +16,15 @@ public class HumanClient {
             String myId = one.registerWithMarket();
             if(myId != null && myId != "") {
                 System.out.println("Registration succesful. My trader ID is " + myId + ".");
-                System.out.println("Result of attempting to buy stock: " + one.buyStock("0IPC-HINL", 250));
-                System.out.println("Result of attempting to buy stock: " + one.buyStock("0IPC-HINL", 500));
-                System.out.println("Result of attempting to buy stock: " + one.buyStock("0IPC-HEL2", 250));
+                one.updateStockRecords(one.getStocks());
+                one.printRecords();
+                one.buyRandomStock();
+                one.buyRandomStock();
+                one.buyRandomStock();
                 one.closeConnection();
             }
         }
-        catch(Exception e) {}
+        catch(Exception e) { System.out.println(e.toString()); }
     }
 
     private Socket client;
@@ -23,10 +32,17 @@ public class HumanClient {
     private DataInputStream inStream;
     private String id;
 
+    private HashMap<String, Integer[]> marketState;
+
     private final String address = "127.0.0.1";
     private final int port = 5656;
 
+    private Pattern stocksSummaryPattern = Pattern.compile("\\[([\\w-]+)\\,\\[(\\d+)\\,(\\d+)\\]\\]");
+    private Matcher match;
+
     public HumanClient() throws IOException {
+        marketState = new HashMap<String, Integer[]>();
+
         System.out.println("Connecting to market at " + address + " on port " + port);
 
         client = new Socket(address, port);
@@ -48,6 +64,32 @@ public class HumanClient {
         }
     }
 
+    public void updateStockRecords(String getStocksResponse) {
+        match = stocksSummaryPattern.matcher(getStocksResponse);
+        while(match.find()) {
+            String stockSummary = getStocksResponse.substring(match.start(), match.end());
+            String stockId = match.group(1);
+            int currentValue = Integer.parseInt(match.group(2));
+            int numAvailable = Integer.parseInt(match.group(3));
+
+            marketState.put(stockId, new Integer[] {currentValue, numAvailable});
+        }
+    }
+
+    public void printRecords() {
+        System.out.println();
+        for(Map.Entry<String, Integer[]> entry : marketState.entrySet()) {
+            System.out.println("Stock ID: " + entry.getKey());
+            System.out.println("Current price: " + entry.getValue()[0]);
+            System.out.println("Number available: " + entry.getValue()[1]);
+            System.out.println();
+        }
+    }
+
+    public String getStocks() throws IOException {
+        return sendMessage("STOCKS", true);
+    }
+
     public String buyStock(String stockId, int amount) throws IOException {
         return sendMessage("BUY " + stockId + " " + id + " " + amount, true);
     }
@@ -60,5 +102,17 @@ public class HumanClient {
     public void closeConnection() throws IOException {
         sendMessage("QUIT", false);
         client.close();
+    }
+
+    public void buyRandomStock() throws IOException {
+        List<String> keysAsArray = new ArrayList<String>(marketState.keySet());
+        Random r = new Random();
+
+        String randId = keysAsArray.get(r.nextInt(keysAsArray.size()));
+        int amount = r.nextInt(marketState.get(randId)[1]);
+
+        System.out.println("Buying " + amount + " of " + randId);
+
+        System.out.println(buyStock(randId, amount));
     }
 }

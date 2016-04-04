@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Map;
 
 /**************************************\
 * Simulates a stock market. Currently  *
@@ -110,7 +111,7 @@ public class Market implements Runnable {
 
     // this is called on main thread when selling stock back to the market
     // if method returns true, the selling was successful
-    public synchronized boolean sellStock(String stockId, String traderId, int quantity) {
+    public synchronized RESULT sellStock(String stockId, String traderId, int quantity) {
         if(!stocks.containsKey(stockId)) {
             return RESULT.INVALID_STOCK;
         }
@@ -149,10 +150,13 @@ public class Market implements Runnable {
         }
     }
 
-    // returns map of stock id -> current value
-    public synchronized HashMap<String, Integer> getStockValues() {
-        // TODO
-        return null;
+    // returns map of stock id -> current value, number available
+    public synchronized HashMap<String, Integer[]> getStocks() {
+        HashMap<String, Integer[]> stockToValue = new HashMap<String, Integer[]>();
+        for(Map.Entry<String, Stock> entry : stocks.entrySet()) {
+            stockToValue.put(entry.getKey(), new Integer[] {entry.getValue().getValue(cycleNum), entry.getValue().numAvailable});
+        }
+        return stockToValue;
     }
 
 }

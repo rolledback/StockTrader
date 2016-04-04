@@ -2,6 +2,8 @@ import java.net.*;
 import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MarketServer implements Runnable {
 
@@ -37,6 +39,7 @@ public class MarketServer implements Runnable {
                 outStream = new DataOutputStream(server.getOutputStream());
 
                 while(true) {
+                    StringBuilder responseBuilder = new StringBuilder();
                     String message = inStream.readUTF();
                     String response = "";
                     RESULT result = RESULT.FAILURE;
@@ -49,6 +52,22 @@ public class MarketServer implements Runnable {
                         System.out.println("Client requesting to end session.\n");
                         break;
                     }
+                    else if(message.equals("STOCKS")) {
+                        HashMap<String, Integer[]> stockValues = owner.getStocks();
+                        responseBuilder.append("{");
+                        for(Map.Entry<String, Integer[]> entry : stockValues.entrySet()) {
+                            responseBuilder.append("[");
+                            responseBuilder.append(entry.getKey());
+                            responseBuilder.append(",[");
+                            responseBuilder.append(Integer.toString(entry.getValue()[0]));
+                            responseBuilder.append(",");
+                            responseBuilder.append(Integer.toString(entry.getValue()[1]));
+                            responseBuilder.append("]],");
+                        }
+                        responseBuilder.deleteCharAt(responseBuilder.length() - 1);
+                        responseBuilder.append("}");
+                        response = responseBuilder.toString();
+                    }
                     else {
                         try {
                             if((match = buyStockPattern.matcher(message)).matches()) {
@@ -58,7 +77,7 @@ public class MarketServer implements Runnable {
                                 result = owner.sellStock(match.group(1), match.group(2), Integer.parseInt(match.group(3)));
                             }
                         }
-                        catch(Exception e) { /* don't worry about handling this at the moment */ }
+                        catch(Exception e) { System.out.println(e.toString()); }
                         response = result.toString();
                     }
 

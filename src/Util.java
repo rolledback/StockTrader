@@ -12,7 +12,7 @@ public class Util {
         if(idLength % 4 != 0) {
             idLength += (4 - idLength % 4);
         }
-        for (int i = 0; i < idLength; i++) {
+        for(int i = 0; i < idLength; i++) {
             tmp.append('0');
             if ((i + 1) % 4 == 0  && i != idLength - 1) {
                 tmp.append('-');
@@ -24,10 +24,10 @@ public class Util {
     private static char[] idChars;
     static {
         StringBuilder tmp = new StringBuilder();
-        for (char ch = '0'; ch <= '9'; ch++) {
+        for(char ch = '0'; ch <= '9'; ch++) {
             tmp.append(ch);
         }
-        for (char ch = 'A'; ch <= 'Z'; ch++) {
+        for(char ch = 'A'; ch <= 'Z'; ch++) {
             tmp.append(ch);
         }
         idChars = tmp.toString().toCharArray();
@@ -35,9 +35,9 @@ public class Util {
 
     public static String genRandomId() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < idLength; i++) {
+        for(int i = 0; i < idLength; i++) {
             builder.append(idChars[rand.nextInt(idChars.length)]);
-            if ((i + 1) % 4 == 0  && i != idLength - 1) {
+            if((i + 1) % 4 == 0  && i != idLength - 1) {
                 builder.append('-');
             }
         }
