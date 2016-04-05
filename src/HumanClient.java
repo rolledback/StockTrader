@@ -34,8 +34,8 @@ public class HumanClient {
 
     private HashMap<String, Integer[]> marketState;
 
-    private final String address = "127.0.0.1";
-    private final int port = 5656;
+    private final String marketAddress = "127.0.0.1";
+    private final int marketPort = 5656;
 
     private Pattern stocksSummaryPattern = Pattern.compile("\\[([\\w-]+)\\,\\[(\\d+)\\,(\\d+)\\]\\]");
     private Matcher match;
@@ -43,7 +43,20 @@ public class HumanClient {
     public HumanClient() throws IOException {
         marketState = new HashMap<String, Integer[]>();
 
-        System.out.println("Connecting to market at " + address + " on port " + port);
+        System.out.println("Connecting to market at " + marketAddress + " on port " + marketPort);
+
+        connectTo(marketAddress, marketPort);
+
+        int portToConnectTo = Integer.parseInt(inStream.readUTF());
+        System.out.println(portToConnectTo);
+
+        connectTo(marketAddress, portToConnectTo);
+    }
+
+    private void connectTo(String address, int port) throws IOException {
+        if(client != null) {
+            client.close();
+        }
 
         client = new Socket(address, port);
         System.out.println("Succesfully connected to market at " + client.getRemoteSocketAddress());
@@ -111,8 +124,8 @@ public class HumanClient {
         String randId = keysAsArray.get(r.nextInt(keysAsArray.size()));
         int amount = r.nextInt(marketState.get(randId)[1]);
 
-        System.out.println("Buying " + amount + " of " + randId);
+        System.out.print("Buying " + amount + " of " + randId + " (");
 
-        System.out.println(buyStock(randId, amount));
+        System.out.println(buyStock(randId, amount) + ")");
     }
 }

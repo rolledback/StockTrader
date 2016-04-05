@@ -44,4 +44,8 @@ public class Util {
 
         return builder.toString();
     }
+
+    public static void print(String tag, String str)  {
+        System.out.println("[" + tag + "] " + str);
+    }
 }

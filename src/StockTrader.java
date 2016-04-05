@@ -4,8 +4,8 @@ public class StockTrader {
 
     public static void main(String[] args) {
         Market market = new Market(5000, 500);
-        addStocks(market);
-
+        addMultiStocks(market, 25);
+        market.startServer();
         Thread marketRunThread = new Thread(market, "Market Runner");
     }
 
@@ -15,9 +15,9 @@ public class StockTrader {
         String traderB = market.registerTrader();
         System.out.println("Trader B: " + traderB);
 
-        String stockA = market.registerStock("ABC", 500);
+        String stockA = market.registerStock(500);
         System.out.println("Stock A: " + stockA);
-        String stockB = market.registerStock("XYZ", 500);
+        String stockB = market.registerStock(500);
         System.out.println("Stock B: " + stockB);
 
         market.buyStock(stockA, traderA, 400);
@@ -32,9 +32,17 @@ public class StockTrader {
 
     public static void addStocks(Market market) {
         System.out.println("Adding stocks to the market:");
-        String stockA = market.registerStock("ABC", 500);
+        String stockA = market.registerStock(500);
         System.out.println("Stock A: " + stockA);
-        String stockB = market.registerStock("XYZ", 500);
+        String stockB = market.registerStock(500);
         System.out.println("Stock B: " + stockB);
+    }
+
+    public static void addMultiStocks(Market market, int n) {
+        System.out.println("Adding stocks to the market:");
+        for(int i = 0; i < n; i++) {
+            String temp = market.registerStock(500);
+            System.out.println("Temp stock: " + temp);
+        }
     }
 }

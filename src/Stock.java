@@ -1,10 +1,9 @@
 public class Stock {
 
     public int numAvailable;
-    public String id, name;
+    public String id;
 
-    public Stock(String name, String id, int numAvailable) {
-        this.name = name;
+    public Stock(String id, int numAvailable) {
         this.id = id;
         this.numAvailable = numAvailable;
     }

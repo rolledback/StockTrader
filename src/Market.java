@@ -3,13 +3,10 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Map;
 
-/**************************************\
-* Simulates a stock market. Currently  *
-* only supports a single trader.       *
-\**************************************/
 public class Market implements Runnable {
     
     private final String id = Util.MARKET_ID;
+    private String tag = "MARKET";
     private final int startingTraderMoney = 500;
 
     private int cycleNum, maxCycles, cycleLength;
@@ -30,19 +27,22 @@ public class Market implements Runnable {
         this.tradingRecord = new ArrayList<ActionRecord>();
         this.stocks = new HashMap<String, Stock>();
         this.traders = new HashMap<String, Trader>();
+    }
 
+    // starts the Market's server
+    public void startServer() {
         try {
-            System.out.println("STARTING MARKET SERVER");
+            Util.print(tag, "Starting market server.");
             server = new MarketServer(this);
         }
         catch(Exception e) {
-            System.out.println("UNABLE TO START/RUN MARKET SERVER\n");
+            Util.print(tag, "Unable to start/run server.");
             System.exit(0);
         }
         finally {
-            System.out.println("MARKET SERVER STARTED\n");
             Thread marketServerThread = new Thread(server, "Market Server");
             marketServerThread.start();
+            Util.print(tag, "Server started.");
         }
     }
 
@@ -57,9 +57,9 @@ public class Market implements Runnable {
 
     // creates a new stock with the given name
     // returns the id of the stock
-    public String registerStock(String name, int numAvailable) {
+    public String registerStock(int numAvailable) {
         String newId = Util.genRandomId();
-        Stock newStock = new Stock(name, newId, numAvailable);
+        Stock newStock = new Stock(newId, numAvailable);
         stocks.put(newId, newStock);
         return newId;
     }
@@ -67,7 +67,7 @@ public class Market implements Runnable {
     public void run() {
         while(cycleNum < maxCycles) {
             try {
-                System.out.println("Updating in " + cycleLength + " miliseconds.");
+                Util.print(tag, "Updating in " + cycleLength + " miliseconds.");
                 Thread.sleep(cycleLength);
             }
             catch(InterruptedException e) {}
@@ -76,7 +76,7 @@ public class Market implements Runnable {
     }
 
     public synchronized void incrementCycle() {
-        System.out.println("Updating.\n");
+        Util.print(tag, "Updating.\n");
         cycleNum++;
     }
 
@@ -135,25 +135,24 @@ public class Market implements Runnable {
     }
 
     public void debugDump() {
-        System.out.println("Registered Traders:");
+        Util.print(tag, "Registered Traders:");
         for(String id: traders.keySet()) {
-            System.out.println(id);
+            Util.print(tag, id);
         }
-        System.out.println();
 
         printLog();
     }
 
     public void printLog() {
         for(ActionRecord record : tradingRecord) {
-            System.out.println(record);
+            Util.print(tag, record.toString());
         }
     }
 
     public void printLog(String traderId, String stockId) {
         for(ActionRecord record : tradingRecord) {
             if(record.involvesTrader(traderId) || record.involvesStock(stockId)) {
-                System.out.println(record);
+                Util.print(tag, record.toString());
             }
         }
     }
