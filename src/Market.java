@@ -145,8 +145,16 @@ public class Market implements Runnable {
     }
 
     public void printLog() {
-        for(ActionRecord record: tradingRecord) {
+        for(ActionRecord record : tradingRecord) {
             System.out.println(record);
+        }
+    }
+
+    public void printLog(String traderId, String stockId) {
+        for(ActionRecord record : tradingRecord) {
+            if(record.involvesTrader(traderId) || record.involvesStock(stockId)) {
+                System.out.println(record);
+            }
         }
     }
 
@@ -158,5 +166,4 @@ public class Market implements Runnable {
         }
         return stockToValue;
     }
-
 }

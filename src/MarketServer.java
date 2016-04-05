@@ -17,8 +17,11 @@ public class MarketServer implements Runnable {
     private Pattern sellStockPattern = Pattern.compile("SELL ([\\w-]+) ([\\w-]+) (\\d+)");
     private Matcher match;
 
+    private HashMap<String, String> ipAddresses;
+
     public MarketServer(Market owner) throws IOException {
         this.owner = owner;
+        this.ipAddresses = new HashMap<String, String>();
 
         try {
             serverSocket = new ServerSocket(5656);
@@ -34,6 +37,7 @@ public class MarketServer implements Runnable {
                 System.out.println("Waiting for client to connect.");
                 server = serverSocket.accept();                
                 System.out.println("Client connected from " + server.getRemoteSocketAddress());
+                ipAddresses.put(server.getRemoteSocketAddress().toString(), "");
 
                 inStream = new DataInputStream(server.getInputStream());
                 outStream = new DataOutputStream(server.getOutputStream());
@@ -47,9 +51,11 @@ public class MarketServer implements Runnable {
                     // big switch to determine response, should probably be moved to a method
                     if(message.equals("REGISTER")) {
                         response = owner.registerTrader();
+                        ipAddresses.put(server.getRemoteSocketAddress().toString(), response);
                     }
                     else if(message.equals("QUIT")) {
                         System.out.println("Client requesting to end session.\n");
+                        owner.printLog(ipAddresses.get(server.getRemoteSocketAddress().toString()), "");
                         break;
                     }
                     else if(message.equals("STOCKS")) {

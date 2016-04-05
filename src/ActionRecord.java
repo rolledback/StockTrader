@@ -17,4 +17,12 @@ class ActionRecord {
     public String toString() {
         return buyerId + " bought " + quantitiy + " of stock " + stockId + " from " + sellerId;
     }
+
+    public boolean involvesTrader(String id) {
+        return this.buyerId.equals(id) || this.sellerId.equals(id);
+    }
+
+    public boolean involvesStock(String id) {
+        return this.stockId.equals(id);
+    }
 }
