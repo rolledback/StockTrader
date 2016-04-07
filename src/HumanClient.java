@@ -32,7 +32,7 @@ public class HumanClient {
     private DataInputStream inStream;
     private String id;
 
-    private HashMap<String, Integer[]> marketState;
+    private Map<String, Integer[]> marketState;
 
     private final String marketAddress = "127.0.0.1";
     private final int marketPort = 5656;

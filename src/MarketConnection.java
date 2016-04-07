@@ -2,7 +2,6 @@ import java.net.*;
 import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,10 +19,11 @@ public class MarketConnection implements Runnable {
     private Pattern sellStockPattern = Pattern.compile("SELL ([\\w-]+) ([\\w-]+) (\\d+)");
     private Matcher match;
 
+    private int port;
     private String traderId;
     private String traderIp;
     private String tag;
-    private int port;
+    private boolean busy;
 
     public MarketConnection(Market owner, MarketServer parent, int port, int index) throws IOException {
         this.owner = owner;
@@ -31,6 +31,7 @@ public class MarketConnection implements Runnable {
         this.traderIp = traderIp;
         this.port = port;
         this.tag = "CON-" + index + "-" + port;        
+        this.busy = false;
 
         try {
             serverSocket = new ServerSocket(port);
@@ -40,8 +41,19 @@ public class MarketConnection implements Runnable {
         }
     }
 
+    // return the port of this connection if it isn't busy, otherwise return -1
+    public int isBusy() {
+        if(busy) {
+            return -1;
+        }
+        else {
+            return port;
+        }
+    }
+
     public void run() {
         try {
+            busy = true;
             Util.print(tag, "Waiting for client to connect.");
             server = serverSocket.accept();
             traderIp = server.getRemoteSocketAddress().toString();
@@ -76,7 +88,7 @@ public class MarketConnection implements Runnable {
                     break;
                 }
                 else if(message.equals("STOCKS")) {
-                    HashMap<String, Integer[]> stockValues = owner.getStocks();
+                    Map<String, Integer[]> stockValues = owner.getStocks();
                     responseBuilder.append("{");
                     for(Map.Entry<String, Integer[]> entry : stockValues.entrySet()) {
                         responseBuilder.append("[");
@@ -118,6 +130,11 @@ public class MarketConnection implements Runnable {
             e.printStackTrace();
         }
         Util.print(tag, "Finishing.");
+        busy = false;
+    }
+
+    public String toString() {
+        return tag;
     }
    
 }

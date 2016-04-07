@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class MarketServer implements Runnable {
 
     private int port = 5656;
     private int nextPort = port;
-    private ArrayList<MarketConnection> connections;
+    private List<MarketConnection> connections;
 
     private String tag = "SERVER";
 
@@ -36,7 +37,22 @@ public class MarketServer implements Runnable {
         }
     }
 
-    private void createNextMarketConnection() throws IOException {
+    private int getFirstAvailConnection() throws IOException {
+        MarketConnection connection;
+        for(int index = 0; index < connections.size(); index++) {
+            connection = connections.get(index);
+            int port = connection.isBusy();
+            if(port != -1) {
+                String threadTitle = "MarketConnection-" + index + "-" + port;
+                Util.print(tag, "Reusing: " + threadTitle);
+                new Thread(connections.get(index), threadTitle).start();
+                return port;
+            }
+        }
+        return -1;
+    }
+
+    private int createNextMarketConnection() throws IOException {
         nextPort++;
         int index = connections.size();
         connections.add(new MarketConnection(owner, this, nextPort, index));
@@ -44,19 +60,25 @@ public class MarketServer implements Runnable {
         String threadTitle = "MarketConnection-" + index + "-" + nextPort;
         Util.print(tag, "Starting: " + threadTitle);
         new Thread(connections.get(index), threadTitle).start();
+        return nextPort;
     }
 
     public void run() {
         while(true) {
             try {
-                createNextMarketConnection();
-
+                Util.print(tag, "Finding next available connection.");
+                int portToCommunicate;
+                if((portToCommunicate = getFirstAvailConnection()) == -1) {
+                    portToCommunicate = createNextMarketConnection();
+                }
+                
                 Util.print(tag, "Waiting for client to connect.");
                 server = serverSocket.accept();                
                 Util.print(tag, "Client connected from " + server.getRemoteSocketAddress());
 
                 outStream = new DataOutputStream(server.getOutputStream());
-                outStream.writeUTF(Integer.toString(nextPort));
+                outStream.writeUTF(Integer.toString(portToCommunicate));
+                Util.print(tag, "Client instructed to reconnect to last found connnection on port " + portToCommunicate + ".");
             }
             catch(SocketTimeoutException s) {
                 Util.print(tag, "Socket timed out.");

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Map;
@@ -10,13 +11,13 @@ public class Market implements Runnable {
     private final int startingTraderMoney = 500;
 
     private int cycleNum, maxCycles, cycleLength;
-    private ArrayList<ActionRecord> tradingRecord;
+    private List<ActionRecord> tradingRecord;
 
     // stock id -> stock
-    private HashMap<String, Stock> stocks;
+    private Map<String, Stock> stocks;
 
     // trader id -> trader
-    private HashMap<String, Trader> traders;
+    private Map<String, Trader> traders;
 
     private MarketServer server;
 
@@ -136,7 +137,7 @@ public class Market implements Runnable {
 
     public void debugDump() {
         Util.print(tag, "Registered Traders:");
-        for(String id: traders.keySet()) {
+        for(String id : traders.keySet()) {
             Util.print(tag, id);
         }
 
@@ -158,8 +159,8 @@ public class Market implements Runnable {
     }
 
     // returns map of stock id -> current value, number available
-    public synchronized HashMap<String, Integer[]> getStocks() {
-        HashMap<String, Integer[]> stockToValue = new HashMap<String, Integer[]>();
+    public synchronized Map<String, Integer[]> getStocks() {
+        Map<String, Integer[]> stockToValue = new HashMap<String, Integer[]>();
         for(Map.Entry<String, Stock> entry : stocks.entrySet()) {
             stockToValue.put(entry.getKey(), new Integer[] {entry.getValue().getValue(cycleNum), entry.getValue().numAvailable});
         }
