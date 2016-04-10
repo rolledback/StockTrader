@@ -48,7 +48,7 @@ public class HumanClient {
         connectTo(marketAddress, marketPort);
 
         int portToConnectTo = Integer.parseInt(inStream.readUTF());
-        System.out.println(portToConnectTo);
+        System.out.println("Market says to connect to market connection on port " + portToConnectTo);
 
         connectTo(marketAddress, portToConnectTo);
     }

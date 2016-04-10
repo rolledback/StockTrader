@@ -24,4 +24,11 @@ public class Stock {
     public void incrementAvailable(int quantity) {
         numAvailable += quantity;
     }
+
+    public String toString() {
+        String ret = "";
+        ret += "Id: "+ id + " | ";
+        ret += "Num Available: " + numAvailable;
+        return ret;
+    }
 }

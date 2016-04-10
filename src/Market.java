@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Market implements Runnable {
     
@@ -44,6 +45,21 @@ public class Market implements Runnable {
             Thread marketServerThread = new Thread(server, "Market Server");
             marketServerThread.start();
             Util.print(tag, "Server started.");
+        }
+    }
+
+    // consider moving this to it's own class/thread, or maybe it should interface with the server?
+    public void startConsole() {
+        Scanner in = new Scanner(System.in);
+        System.out.print("> ");
+        while(in.hasNextLine()) {
+            String cmd = in.nextLine();
+
+            if(cmd.equals("debug")) {
+                debugDump();
+            }
+
+            System.out.print("> ");
         }
     }
 
@@ -136,9 +152,16 @@ public class Market implements Runnable {
     }
 
     public void debugDump() {
+        Util.print(tag, "Current cycle: " + cycleNum);
+
         Util.print(tag, "Registered Traders:");
         for(String id : traders.keySet()) {
             Util.print(tag, id);
+        }
+
+        Util.print(tag, "Current Stocks:");
+        for(String id : stocks.keySet()) {
+            Util.print(tag, stocks.get(id).toString());
         }
 
         printLog();

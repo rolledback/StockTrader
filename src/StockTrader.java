@@ -7,6 +7,7 @@ public class StockTrader {
         addMultiStocks(market, 25);
         market.startServer();
         Thread marketRunThread = new Thread(market, "Market Runner");
+        market.startConsole();
     }
 
     public static void implementationTest(Market market) {
