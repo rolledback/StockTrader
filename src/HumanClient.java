@@ -27,7 +27,7 @@ public class HumanClient {
         catch(Exception e) { System.out.println(e.toString()); }
     }
 
-    private Socket client;
+    private Socket market;
     private DataOutputStream outStream;
     private DataInputStream inStream;
     private String id;
@@ -54,15 +54,15 @@ public class HumanClient {
     }
 
     private void connectTo(String address, int port) throws IOException {
-        if(client != null) {
-            client.close();
+        if(market != null) {
+            market.close();
         }
 
-        client = new Socket(address, port);
-        System.out.println("Succesfully connected to market at " + client.getRemoteSocketAddress());
+        market = new Socket(address, port);
+        System.out.println("Succesfully connected to market at " + market.getRemoteSocketAddress());
 
-        outStream = new DataOutputStream(client.getOutputStream());
-        inStream = new DataInputStream(client.getInputStream());
+        outStream = new DataOutputStream(market.getOutputStream());
+        inStream = new DataInputStream(market.getInputStream());
     }
 
     // object should not send messages directly
@@ -114,7 +114,7 @@ public class HumanClient {
 
     public void closeConnection() throws IOException {
         sendMessage("QUIT", false);
-        client.close();
+        market.close();
     }
 
     public void buyRandomStock() throws IOException {

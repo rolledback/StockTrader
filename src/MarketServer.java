@@ -20,10 +20,13 @@ public class MarketServer implements Runnable {
     private Matcher match;
 
     private int port = 5656;
+    private int consolePort = 5655;
     private int nextPort = port;
     private List<MarketConnection> connections;
 
     private String tag = "SERVER";
+
+    private final String consoleKey = "SECRET_KEY";
 
     public MarketServer(Market owner) throws IOException {
         this.owner = owner;

@@ -48,21 +48,6 @@ public class Market implements Runnable {
         }
     }
 
-    // consider moving this to it's own class/thread, or maybe it should interface with the server?
-    public void startConsole() {
-        Scanner in = new Scanner(System.in);
-        System.out.print("> ");
-        while(in.hasNextLine()) {
-            String cmd = in.nextLine();
-
-            if(cmd.equals("debug")) {
-                debugDump();
-            }
-
-            System.out.print("> ");
-        }
-    }
-
     // creates a new trader on the market
     // returns the id of the trader
     public String registerTrader() {
