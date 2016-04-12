@@ -18,9 +18,9 @@ public class HumanClient {
                 System.out.println("Registration succesful. My trader ID is " + myId + ".");
                 one.updateStockRecords(one.getStocks());
                 one.printRecords();
-                one.buyRandomStock();
-                one.buyRandomStock();
-                one.buyRandomStock();
+                for(int i = 0; i < 50; i++) {
+                    one.buyRandomStock();
+                }
                 one.closeConnection();
             }
         }

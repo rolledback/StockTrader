@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Map;
 import java.util.Scanner;
+import java.lang.StringBuilder;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class Market implements Runnable {
     
     private final String id = Util.MARKET_ID;
     private String tag = "MARKET";
-    private final int startingTraderMoney = 500;
+    private final int startingTraderMoney = 10000;
 
     private int cycleNum, maxCycles, cycleLength;
     private List<ActionRecord> tradingRecord;
@@ -21,6 +24,7 @@ public class Market implements Runnable {
     private Map<String, Trader> traders;
 
     private MarketServer server;
+    private ConsoleSocket console;
 
     public Market(int maxCycles, int cycleLength) {
         this.cycleNum = 0;
@@ -45,6 +49,23 @@ public class Market implements Runnable {
             Thread marketServerThread = new Thread(server, "Market Server");
             marketServerThread.start();
             Util.print(tag, "Server started.");
+        }
+    }
+
+    // starts the socket that a console client can connect to
+    public void startConsoleConnection() {
+        try {
+            Util.print(tag, "Starting console socket.");
+            console = new ConsoleSocket(this);
+        }
+        catch(Exception e) {
+            Util.print(tag, "Unable to start/run console socket.");
+            System.exit(0);
+        }
+        finally {
+            Thread consoleSocketThread = new Thread(console, "Console Socket");
+            consoleSocketThread.start();
+            Util.print(tag, "Console socket started.");
         }
     }
 
@@ -136,34 +157,38 @@ public class Market implements Runnable {
         }
     }
 
-    public void debugDump() {
-        Util.print(tag, "Current cycle: " + cycleNum);
+    public String debugDump() {
+        StringBuilder tmp = new StringBuilder();
+        tmp.append("Current cycle: " + cycleNum + "\n");
 
-        Util.print(tag, "Registered Traders:");
+        tmp.append("\nRegistered Traders:" + "\n");
         for(String id : traders.keySet()) {
-            Util.print(tag, id);
+            tmp.append(id + "\n");
         }
 
-        Util.print(tag, "Current Stocks:");
+        tmp.append("\nCurrent Stocks:" + "\n");
         for(String id : stocks.keySet()) {
-            Util.print(tag, stocks.get(id).toString());
+            tmp.append(stocks.get(id).toString() + "\n");
         }
-
-        printLog();
+        return tmp.toString();
     }
 
-    public void printLog() {
+    public String tradingLog() {
+        StringBuilder tmp = new StringBuilder();
         for(ActionRecord record : tradingRecord) {
-            Util.print(tag, record.toString());
+            tmp.append(record.toString() + "\n");
         }
+        return tmp.toString();
     }
 
-    public void printLog(String traderId, String stockId) {
+    public String tradingLog(String traderId, String stockId) {
+        StringBuilder tmp = new StringBuilder();
         for(ActionRecord record : tradingRecord) {
-            if(record.involvesTrader(traderId) || record.involvesStock(stockId)) {
-                Util.print(tag, record.toString());
+            if((traderId == "" || record.involvesTrader(traderId)) && (stockId == "" || record.involvesStock(stockId))) {
+                tmp.append(record.toString() + "\n");
             }
         }
+        return tmp.toString();
     }
 
     // returns map of stock id -> current value, number available

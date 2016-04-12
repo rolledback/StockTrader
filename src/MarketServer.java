@@ -20,9 +20,8 @@ public class MarketServer implements Runnable {
     private Matcher match;
 
     private int port = 5656;
-    private int consolePort = 5655;
     private int nextPort = port;
-    private List<MarketConnection> connections;
+    private List<MarketSocket> connections;
 
     private String tag = "SERVER";
 
@@ -30,7 +29,7 @@ public class MarketServer implements Runnable {
 
     public MarketServer(Market owner) throws IOException {
         this.owner = owner;
-        connections = new ArrayList<MarketConnection>();
+        connections = new ArrayList<MarketSocket>();
 
         try {
             serverSocket = new ServerSocket(port);
@@ -41,12 +40,12 @@ public class MarketServer implements Runnable {
     }
 
     private int getFirstAvailConnection() throws IOException {
-        MarketConnection connection;
+        MarketSocket connection;
         for(int index = 0; index < connections.size(); index++) {
             connection = connections.get(index);
             int port = connection.isBusy();
             if(port != -1) {
-                String threadTitle = "MarketConnection-" + index + "-" + port;
+                String threadTitle = "MarketSocket-" + index + "-" + port;
                 Util.print(tag, "Reusing: " + threadTitle);
                 new Thread(connections.get(index), threadTitle).start();
                 return port;
@@ -55,12 +54,12 @@ public class MarketServer implements Runnable {
         return -1;
     }
 
-    private int createNextMarketConnection() throws IOException {
+    private int createNextMarketSocket() throws IOException {
         nextPort++;
         int index = connections.size();
-        connections.add(new MarketConnection(owner, this, nextPort, index));
+        connections.add(new MarketSocket(owner, this, nextPort, index));
 
-        String threadTitle = "MarketConnection-" + index + "-" + nextPort;
+        String threadTitle = "MarketSocket-" + index + "-" + nextPort;
         Util.print(tag, "Starting: " + threadTitle);
         new Thread(connections.get(index), threadTitle).start();
         return nextPort;
@@ -72,7 +71,7 @@ public class MarketServer implements Runnable {
                 Util.print(tag, "Finding next available connection.");
                 int portToCommunicate;
                 if((portToCommunicate = getFirstAvailConnection()) == -1) {
-                    portToCommunicate = createNextMarketConnection();
+                    portToCommunicate = createNextMarketSocket();
                 }
                 
                 Util.print(tag, "Waiting for client to connect.");

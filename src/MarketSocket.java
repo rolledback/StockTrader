@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class MarketConnection implements Runnable {
+public class MarketSocket implements Runnable {
 
     private Market owner;
     private MarketServer parent;
@@ -25,7 +25,7 @@ public class MarketConnection implements Runnable {
     private String tag;
     private boolean busy;
 
-    public MarketConnection(Market owner, MarketServer parent, int port, int index) throws IOException {
+    public MarketSocket(Market owner, MarketServer parent, int port, int index) throws IOException {
         this.owner = owner;
         this.parent = parent;
         this.traderIp = traderIp;
@@ -84,7 +84,6 @@ public class MarketConnection implements Runnable {
                 }
                 else if(message.equals("QUIT")) {
                     Util.print(tag, "Client requesting to end session.");
-                    owner.printLog(traderId, "");
                     break;
                 }
                 else if(message.equals("STOCKS")) {
@@ -136,5 +135,4 @@ public class MarketConnection implements Runnable {
     public String toString() {
         return tag;
     }
-   
 }
