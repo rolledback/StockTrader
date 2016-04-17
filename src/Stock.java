@@ -4,8 +4,45 @@ import java.util.Random;
 public class Stock {
 
     public static void main(String[] args) {
-        Stock test = new Stock(Util.genRandomId(), 100, 50, 500);
-        test.dumpToPriceHistoryToFile("price");
+        int count = 10;
+        int maxCycles = 500;
+
+        double[][] prices = new double[maxCycles][count];
+
+        for(int i = 0; i < count; i++) {
+            Stock test = new Stock(Util.genRandomId(), 100, 50, maxCycles);
+            System.out.println(test.id);
+            addArrayAsColumn(test.getPriceHistory(), prices, i);
+        }
+        writeMatrixToFile(prices, "stocks");
+    }
+
+    public static void addArrayAsColumn(double[] array, double[][] matrix, int col) {
+        for(int i = 0; i < array.length; i++) {
+            matrix[i][col] = array[i];
+        }
+    }
+
+    public static void writeMatrixToFile(double[][] matrix, String file) {
+        try {
+            FileWriter fstream = new FileWriter(file + ".csv");
+            BufferedWriter out = new BufferedWriter(fstream);
+
+            for(int row = 0; row < matrix.length; row++) {
+                for(int col = 0; col < matrix[row].length; col++) {
+                    out.write(Double.toString(matrix[row][col]));
+                    if(col != matrix[row].length -1) {
+                        out.write(",");
+                    }
+                }
+                out.write("\n");
+            }
+
+            out.close();
+        }
+        catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 
     public int numAvailable;
@@ -18,7 +55,15 @@ public class Stock {
     private double[] priceHistory;
 
     private static final double timeStep = 0.01;
+    
+    private static final double minVol = -1;
+    private static final double maxVol = 1;
+
+    private static final double minDrift = .01;
+    private static final double maxDrift = .5;
+
     public static final Random rand = new Random();
+
 
     public Stock(String id, int numAvailable) {
         this.id = id;
@@ -37,9 +82,13 @@ public class Stock {
         fillPriceHistory();
     }
 
+    public double[] getPriceHistory() {
+        return priceHistory;
+    }
+
     public void dumpToPriceHistoryToFile(String file) {
         try {
-            FileWriter fstream = new FileWriter(file + ".stock");
+            FileWriter fstream = new FileWriter(file + id + ".stock");
             BufferedWriter out = new BufferedWriter(fstream);
 
             for(int i = 0; i < maxCycles; i++) {
@@ -54,9 +103,8 @@ public class Stock {
     }
 
     private void genRandomParams() {
-        // TODO: these need to be randomly generated
-        volatility = 1;
-        drift = 0.1;
+        volatility = minVol + (maxVol - minVol) * rand.nextDouble();
+        drift = minDrift + (maxDrift - minDrift) * rand.nextDouble();
     }
 
     private void fillPriceHistory() {
@@ -69,12 +117,15 @@ public class Stock {
             delta = totalDrift + uncertainty;
 
             priceHistory[i] = priceHistory[i - 1] + delta;
+
+            if(priceHistory[i] == 0) {
+                break;
+            }
         }
     }
 
-    public int getValue(int tick) {
-        // TODO: this needs to return double, lots of refactoring tbd to make that work
-        return (int)priceHistory[tick];
+    public double getValue(int tick) {
+        return (double) Math.round(priceHistory[tick] * 100) / 100;
     }
 
     public void decrementAvailable(int quantity) {

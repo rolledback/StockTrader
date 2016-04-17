@@ -14,6 +14,8 @@ public class Market implements Runnable {
     private String tag = "MARKET";
     private final int startingTraderMoney = 10000;
 
+    private static final Random rand = new Random();
+
     private int cycleNum, maxCycles, cycleLength;
     private List<ActionRecord> tradingRecord;
 
@@ -33,6 +35,20 @@ public class Market implements Runnable {
         this.tradingRecord = new ArrayList<ActionRecord>();
         this.stocks = new HashMap<String, Stock>();
         this.traders = new HashMap<String, Trader>();
+    }
+
+    public Market(int maxCycles, int cycleLength, int numStocks, int minNumAvail, int maxNumAvail) {
+        this.cycleNum = 0;
+        this.maxCycles = maxCycles;
+        this.cycleLength = cycleLength;
+        this.tradingRecord = new ArrayList<ActionRecord>();
+        this.stocks = new HashMap<String, Stock>();
+        this.traders = new HashMap<String, Trader>();
+
+        for(int i = 0; i < numStocks; i++) {
+            int numAvail = rand.nextInt((maxNumAvail - minNumAvail) + 1) + minNumAvail;
+            registerStock(numAvail);
+        }
     }
 
     // starts the Market's server
@@ -82,7 +98,7 @@ public class Market implements Runnable {
     // returns the id of the stock
     public String registerStock(int numAvailable) {
         String newId = Util.genRandomId();
-        Stock newStock = new Stock(newId, numAvailable);
+        Stock newStock = new Stock(newId, numAvailable, 50, maxCycles);
         stocks.put(newId, newStock);
         return newId;
     }
@@ -99,7 +115,7 @@ public class Market implements Runnable {
     }
 
     public synchronized void incrementCycle() {
-        Util.print(tag, "Updating.\n");
+        Util.print(tag, "Updating.");
         cycleNum++;
     }
 
@@ -168,7 +184,7 @@ public class Market implements Runnable {
 
         tmp.append("\nCurrent Stocks:" + "\n");
         for(String id : stocks.keySet()) {
-            tmp.append(stocks.get(id).toString() + "\n");
+            tmp.append(stocks.get(id).toString() + "@" + stocks.get(id).getValue(cycleNum) + "\n");
         }
         return tmp.toString();
     }
@@ -192,10 +208,10 @@ public class Market implements Runnable {
     }
 
     // returns map of stock id -> current value, number available
-    public synchronized Map<String, Integer[]> getStocks() {
-        Map<String, Integer[]> stockToValue = new HashMap<String, Integer[]>();
+    public synchronized Map<String, Object[]> getStocks() {
+        Map<String, Object[]> stockToValue = new HashMap<String, Object[]>();
         for(Map.Entry<String, Stock> entry : stocks.entrySet()) {
-            stockToValue.put(entry.getKey(), new Integer[] {entry.getValue().getValue(cycleNum), entry.getValue().numAvailable});
+            stockToValue.put(entry.getKey(), new Object[] {entry.getValue().getValue(cycleNum), entry.getValue().numAvailable});
         }
         return stockToValue;
     }

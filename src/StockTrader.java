@@ -3,11 +3,12 @@ import java.util.Scanner;
 public class StockTrader {
 
     public static void main(String[] args) {
-        Market market = new Market(5000, 500);
-        addMultiStocks(market, 25);
+        Market market = new Market(5000, 1000, 20, 250, 500);
+        // addMultiStocks(market, 25);
         market.startServer();
         market.startConsoleConnection();
         Thread marketRunThread = new Thread(market, "Market Runner");
+        marketRunThread.start();
     }
 
     public static void implementationTest(Market market) {

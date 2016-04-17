@@ -32,16 +32,16 @@ public class HumanClient {
     private DataInputStream inStream;
     private String id;
 
-    private Map<String, Integer[]> marketState;
+    private Map<String, Object[]> marketState;
 
     private final String marketAddress = "127.0.0.1";
     private final int marketPort = 5656;
 
-    private Pattern stocksSummaryPattern = Pattern.compile("\\[([\\w-]+)\\,\\[(\\d+)\\,(\\d+)\\]\\]");
+    private Pattern stocksSummaryPattern = Pattern.compile("\\[([\\w-]+)\\,\\[([-+]?[0-9]*\\.?[0-9]*)\\,(\\d+)\\]\\]");
     private Matcher match;
 
     public HumanClient() throws IOException {
-        marketState = new HashMap<String, Integer[]>();
+        marketState = new HashMap<String, Object[]>();
 
         System.out.println("Connecting to market at " + marketAddress + " on port " + marketPort);
 
@@ -82,19 +82,19 @@ public class HumanClient {
         while(match.find()) {
             String stockSummary = getStocksResponse.substring(match.start(), match.end());
             String stockId = match.group(1);
-            int currentValue = Integer.parseInt(match.group(2));
+            double currentValue = Double.parseDouble(match.group(2));
             int numAvailable = Integer.parseInt(match.group(3));
 
-            marketState.put(stockId, new Integer[] {currentValue, numAvailable});
+            marketState.put(stockId, new Object[] {currentValue, numAvailable});
         }
     }
 
     public void printRecords() {
         System.out.println();
-        for(Map.Entry<String, Integer[]> entry : marketState.entrySet()) {
+        for(Map.Entry<String, Object[]> entry : marketState.entrySet()) {
             System.out.println("Stock ID: " + entry.getKey());
-            System.out.println("Current price: " + entry.getValue()[0]);
-            System.out.println("Number available: " + entry.getValue()[1]);
+            System.out.println("Current price: " + (Double)entry.getValue()[0]);
+            System.out.println("Number available: " + (Integer)entry.getValue()[1]);
             System.out.println();
         }
     }
@@ -122,7 +122,7 @@ public class HumanClient {
         Random r = new Random();
 
         String randId = keysAsArray.get(r.nextInt(keysAsArray.size()));
-        int amount = r.nextInt(marketState.get(randId)[1]);
+        int amount = r.nextInt((Integer)marketState.get(randId)[1]);
 
         System.out.print("Buying " + amount + " of " + randId + " (");
 

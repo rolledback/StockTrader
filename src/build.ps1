@@ -16,10 +16,10 @@ ElseIf ($serverTest)
     $javaCompile = "& javac *.java 2>&1";
     echo "Compiling..."
     $compileOutput = invoke-expression $javaCompile;
-    echo "Compilation complete."
 
     If ($compileOutput.length -eq 0)
     {
+        echo "Compilation complete."
         echo "Starting server."
         start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java StockTrader"'
         sleep(1)
@@ -45,10 +45,10 @@ ElseIf ($stockTest)
     $javaCompile = "& javac *.java 2>&1";
     echo "Compiling..."
     $compileOutput = invoke-expression $javaCompile;
-    echo "Compilation complete."
 
     If ($compileOutput.length -eq 0)
     {
+        echo "Compilation complete."
         echo "Running stock test."
         java Stock
     }

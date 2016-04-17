@@ -87,15 +87,15 @@ public class MarketSocket implements Runnable {
                     break;
                 }
                 else if(message.equals("STOCKS")) {
-                    Map<String, Integer[]> stockValues = owner.getStocks();
+                    Map<String, Object[]> stockValues = owner.getStocks();
                     responseBuilder.append("{");
-                    for(Map.Entry<String, Integer[]> entry : stockValues.entrySet()) {
+                    for(Map.Entry<String, Object[]> entry : stockValues.entrySet()) {
                         responseBuilder.append("[");
                         responseBuilder.append(entry.getKey());
                         responseBuilder.append(",[");
-                        responseBuilder.append(Integer.toString(entry.getValue()[0]));
+                        responseBuilder.append(Double.toString((Double)entry.getValue()[0]));
                         responseBuilder.append(",");
-                        responseBuilder.append(Integer.toString(entry.getValue()[1]));
+                        responseBuilder.append(Integer.toString((Integer)entry.getValue()[1]));
                         responseBuilder.append("]],");
                     }
                     responseBuilder.deleteCharAt(responseBuilder.length() - 1);
