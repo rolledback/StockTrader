@@ -17,6 +17,7 @@ public class Market implements Runnable {
     private static final Random rand = new Random();
 
     private int cycleNum, maxCycles, cycleLength;
+    private boolean running;
     private List<ActionRecord> tradingRecord;
 
     // stock id -> stock
@@ -44,6 +45,7 @@ public class Market implements Runnable {
         this.tradingRecord = new ArrayList<ActionRecord>();
         this.stocks = new HashMap<String, Stock>();
         this.traders = new HashMap<String, Trader>();
+        this.running = false;
 
         for(int i = 0; i < numStocks; i++) {
             int numAvail = rand.nextInt((maxNumAvail - minNumAvail) + 1) + minNumAvail;
@@ -104,6 +106,7 @@ public class Market implements Runnable {
     }
 
     public void run() {
+        running = true;
         while(cycleNum < maxCycles) {
             try {
                 Util.print(tag, "Updating in " + cycleLength + " miliseconds.");
@@ -117,6 +120,20 @@ public class Market implements Runnable {
     public synchronized void incrementCycle() {
         Util.print(tag, "Updating.");
         cycleNum++;
+
+        while(!running) {
+            // sleep as long as we aren't running
+            try {
+                Thread.sleep(cycleLength);
+            }
+            catch(InterruptedException e) {}
+        }
+    }
+
+    public boolean changeRunning(boolean state) {
+        boolean valueChanging = (running != state);
+        running = state;
+        return valueChanging;
     }
 
     // this is called on main thread when buying stock from the market

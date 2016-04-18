@@ -31,6 +31,8 @@ public class ConsoleSocket implements Runnable {
         validCommands.put("quit", "Disconnect from the console socket.");
         validCommands.put("help", "List all available commands.");
         validCommands.put("debug", "Produces a full debug dump of the market.");
+        validCommands.put("start", "Start the market simulation.");
+        validCommands.put("stop", "Stop the market simulation.");
         validCommands.put("log", "Prints out the full market's trading log.\n\tOptinal Arguments:\n\t-t <trader id to match>\n\t-s <stock id to match>");
     }
 
@@ -132,6 +134,20 @@ public class ConsoleSocket implements Runnable {
         }
         else if(command.equals("log")) {
             return owner.tradingLog();
+        }
+        else if(command.equals("start")) {
+            boolean effect = owner.changeRunning(true);
+            if(effect) {
+                return "Simulation started.";
+            }
+            return "Simluation already running.";
+        }
+        else if(command.equals("stop")) {
+            boolean effect = owner.changeRunning(false);
+            if(effect) {
+                return "Simulation stopped.";
+            }
+            return "Simluation already stopped.";
         }
         else if((match = filterLogPattern.matcher(command)).matches()) {
             String traderId = ""; 
