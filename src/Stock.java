@@ -10,7 +10,13 @@ public class Stock {
         double[][] prices = new double[maxCycles][count];
 
         for(int i = 0; i < count; i++) {
-            Stock test = new Stock(Util.genRandomId(), 100, 50, maxCycles);
+            Stock.Builder builder = new Stock.Builder(maxCycles);
+            builder.atPrice(50)
+                   .hasAvailable(100)
+                   .volatilityRangeOf(-1, 1)
+                   .driftRangeOf(.01, .5);
+            Stock test = builder.build();
+
             System.out.println(test.id);
             addArrayAsColumn(test.getPriceHistory(), prices, i);
         }
@@ -48,22 +54,24 @@ public class Stock {
     public int numAvailable;
     public String id;
     public int maxCycles;
-
     private double startingPrice;
+
     private double volatility;
     private double drift;
     private double[] priceHistory;
 
-    private static final double timeStep = 0.01;
-    
-    private static final double minVol = -1;
-    private static final double maxVol = 1;
+    private static double minVol = -1;
+    private static double maxVol = 1;
 
-    private static final double minDrift = .01;
-    private static final double maxDrift = .5;
+    private static double minDrift = .01;
+    private static double maxDrift = .5;
+
+    private static final double timeStep = 0.01;
 
     public static final Random rand = new Random();
 
+    // adding while working on builder
+    private Stock() {}
 
     public Stock(String id, int numAvailable) {
         this.id = id;
@@ -146,5 +154,68 @@ public class Stock {
         ret += "Id: "+ id + " | ";
         ret += "Num Available: " + numAvailable;
         return ret;
+    }
+
+    public static class Builder {
+        private final Stock stock;
+
+        public Builder(int maxCycles) {
+            stock = new Stock();
+            stock.id = Util.genRandomId();
+            stock.maxCycles = maxCycles;
+            stock.priceHistory = new double[maxCycles];
+        }
+
+        public Builder atPrice(double price) {
+            stock.startingPrice = price;
+            return this;
+        }
+
+        public Builder hasAvailable(int numAvailable) {
+            stock.numAvailable = numAvailable;
+            return this;
+        }
+
+        public Builder volatilityRangeOf(double minVol, double maxVol) {
+            stock.minVol = minVol;
+            stock.maxVol = maxVol;
+            return this;
+        }
+
+        public Builder driftRangeOf(double minDrift, double maxDrift) {
+            stock.minDrift = minDrift;
+            stock.maxDrift = maxDrift;
+            return this;
+        }
+
+        public Stock build() {
+            if(!validate()) {
+                return null;
+            }
+            else {
+                stock.genRandomParams();
+                stock.fillPriceHistory();
+                return stock;
+            }
+        }
+
+        private boolean validate() {
+            if(stock.maxCycles < 0) {
+                return false;
+            }
+            if(stock.minDrift > stock.maxDrift) {
+                return false;
+            }
+            else if(stock.minVol > stock.maxVol) {
+                return false;
+            }
+            else if(stock.numAvailable < 0) {
+                return false;
+            }
+            else if(stock.startingPrice < 0) {
+                return false;
+            }
+            return true;
+        }
     }
 }
