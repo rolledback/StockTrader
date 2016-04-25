@@ -99,10 +99,18 @@ public class Market implements Runnable {
     // creates a new stock with the given name
     // returns the id of the stock
     public String registerStock(int numAvailable) {
-        String newId = Util.genRandomId();
-        Stock newStock = new Stock(newId, numAvailable, 50, maxCycles);
-        stocks.put(newId, newStock);
+        Stock.Builder builder = new Stock.Builder(maxCycles);
+        builder.atPrice(50)
+               .hasAvailable(numAvailable);
+        Stock stock = builder.build();
+
+        String newId = stock.id;
+        stocks.put(newId, stock);
         return newId;
+    }
+
+    public void addStock(Stock stock) {
+        stocks.put(stock.id, stock);
     }
 
     public void run() {

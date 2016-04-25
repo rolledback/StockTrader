@@ -1,5 +1,5 @@
-import java.io.*;
 import java.util.Random;
+import java.io.*;
 
 public class Stock {
 
@@ -18,37 +18,9 @@ public class Stock {
             Stock test = builder.build();
 
             System.out.println(test.id);
-            addArrayAsColumn(test.getPriceHistory(), prices, i);
+            Util.addArrayAsColumn(test.getPriceHistory(), prices, i);
         }
-        writeMatrixToFile(prices, "stocks");
-    }
-
-    public static void addArrayAsColumn(double[] array, double[][] matrix, int col) {
-        for(int i = 0; i < array.length; i++) {
-            matrix[i][col] = array[i];
-        }
-    }
-
-    public static void writeMatrixToFile(double[][] matrix, String file) {
-        try {
-            FileWriter fstream = new FileWriter(file + ".csv");
-            BufferedWriter out = new BufferedWriter(fstream);
-
-            for(int row = 0; row < matrix.length; row++) {
-                for(int col = 0; col < matrix[row].length; col++) {
-                    out.write(Double.toString(matrix[row][col]));
-                    if(col != matrix[row].length -1) {
-                        out.write(",");
-                    }
-                }
-                out.write("\n");
-            }
-
-            out.close();
-        }
-        catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-        }
+        Util.writeMatrixToFile(prices, "stocks");
     }
 
     public int numAvailable;
@@ -70,25 +42,7 @@ public class Stock {
 
     public static final Random rand = new Random();
 
-    // adding while working on builder
     private Stock() {}
-
-    public Stock(String id, int numAvailable) {
-        this.id = id;
-        this.numAvailable = numAvailable;
-    }
-
-    public Stock(String id, int numAvailable, int startingPrice, int maxCycles) {
-        this.id = id;
-        this.numAvailable = numAvailable;
-        this.maxCycles = maxCycles;
-        this.startingPrice = startingPrice;
-
-        this.priceHistory = new double[maxCycles];
-
-        genRandomParams();
-        fillPriceHistory();
-    }
 
     public double[] getPriceHistory() {
         return priceHistory;
@@ -138,7 +92,7 @@ public class Stock {
 
     public void decrementAvailable(int quantity) {
         if(quantity > numAvailable) {
-            throw new IllegalArgumentException("Market should not be asking to decrement more stock than is availble.");
+            throw new IllegalArgumentException("Cannot decrement more stock than is availble.");
         }
         else {
             numAvailable -= quantity;

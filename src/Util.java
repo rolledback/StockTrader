@@ -1,5 +1,6 @@
 import java.util.Random;
 import java.lang.StringBuilder;
+import java.io.*;
 
 public class Util {
 
@@ -47,5 +48,33 @@ public class Util {
 
     public static void print(String tag, String str)  {
         System.out.println("[" + tag + "] " + str);
+    }
+
+    public static void addArrayAsColumn(double[] array, double[][] matrix, int col) {
+        for(int i = 0; i < array.length; i++) {
+            matrix[i][col] = array[i];
+        }
+    }
+
+    public static void writeMatrixToFile(double[][] matrix, String file) {
+        try {
+            FileWriter fstream = new FileWriter(file + ".csv");
+            BufferedWriter out = new BufferedWriter(fstream);
+
+            for(int row = 0; row < matrix.length; row++) {
+                for(int col = 0; col < matrix[row].length; col++) {
+                    out.write(Double.toString(matrix[row][col]));
+                    if(col != matrix[row].length -1) {
+                        out.write(",");
+                    }
+                }
+                out.write("\n");
+            }
+
+            out.close();
+        }
+        catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
     }
 }
