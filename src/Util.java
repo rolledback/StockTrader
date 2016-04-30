@@ -77,4 +77,8 @@ public class Util {
             System.err.println("Error: " + e.getMessage());
         }
     }
+
+    public static double randomDouble(double min, double max) {
+        return min + (max - min) * rand.nextDouble();
+    }
 }

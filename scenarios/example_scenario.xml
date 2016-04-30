@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<market
+    maxCycles="5000"
+    cycleLength="1000" >
+    <stock
+        numAvailable="500"
+        startingPrice="75" />
+    <stock
+        numAvailable="250"
+        startingPrice="25"
+        minDrift="0.1"
+        maxDrift="0.4" />
+    <multi_stock
+        num="100"
+        numAvailable="500"
+        minPrice="100"
+        maxPrice="200"
+        drift=".25"
+        volatility=".5" />
+</market>
