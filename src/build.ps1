@@ -2,24 +2,26 @@ param(
     [switch] $console,
     [switch] $serverTest,
     [switch] $stockTest,
-    [switch] $compile
+    [switch] $scenarioTest
 )
 
-If ($compile)
-{
-    $javaCompile = "& javac *.java 2>&1";
-    echo "Compiling..."
-    invoke-expression $javaCompile;
-}
-ElseIf ($serverTest)
-{
-    $javaCompile = "& javac *.java 2>&1";
-    echo "Compiling..."
-    $compileOutput = invoke-expression $javaCompile;
+$javaCompile = "& javac *.java 2>&1";
+echo "Compiling..."
+$compileOutput = invoke-expression $javaCompile;
 
-    If ($compileOutput.length -eq 0)
+If ($compileOutput.length -ne 0)
+{
+    echo "Compilation failed."
+    for ($i=0; $i -lt $compileOutput.length; $i++)
     {
-        echo "Compilation complete."
+        $compileOutput[$i];
+    }
+}
+Else
+{
+    echo "Compilation complete."
+    If ($serverTest)
+    {
         echo "Starting server."
         start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java StockTrader"'
         sleep(1)
@@ -31,33 +33,14 @@ ElseIf ($serverTest)
             start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java ConsoleClient"'
         }
     }
-    Else
+    ElseIf ($stockTest)
     {
-        echo "Compilation failed."
-        for ($i=0; $i -lt $compileOutput.length; $i++)
-        {
-            $compileOutput[$i];
-        }
-    }    
-}
-ElseIf ($stockTest)
-{
-    $javaCompile = "& javac *.java 2>&1";
-    echo "Compiling..."
-    $compileOutput = invoke-expression $javaCompile;
-
-    If ($compileOutput.length -eq 0)
-    {
-        echo "Compilation complete."
         echo "Running stock test."
         java Stock
     }
-    Else
+    ElseIf ($scenarioTest)
     {
-        echo "Compilation failed."
-        for ($i=0; $i -lt $compileOutput.length; $i++)
-        {
-            $compileOutput[$i];
-        }
-    } 
+        echo "Running scenario test."
+        java ScenarioReader
+    }
 }
