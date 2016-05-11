@@ -22,25 +22,25 @@ Else
     echo "Compilation complete."
     If ($serverTest)
     {
-        echo "Starting server."
+        echo "Starting server.`n"
         start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java StockTrader"'
         sleep(1)
-        echo "Starting human client."
+        echo "Starting human client.`n"
         start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java HumanClient"'
         If ($console)
         {
-            echo "Starting console."
+            echo "Starting console.`n"
             start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java ConsoleClient"'
         }
     }
     ElseIf ($stockTest)
     {
-        echo "Running stock test."
+        echo "Running stock test.`n"
         java Stock
     }
     ElseIf ($scenarioTest)
     {
-        echo "Running scenario test."
+        echo "Running scenario test.`n"
         java ScenarioReader
     }
 }

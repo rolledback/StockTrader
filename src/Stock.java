@@ -1,4 +1,7 @@
 import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+import java.lang.StringBuilder;
 import java.io.*;
 
 public class Stock {
@@ -8,17 +11,20 @@ public class Stock {
         int maxCycles = 500;
 
         double[][] prices = new double[maxCycles][count];
+        List<Stock> stocks;
 
-        for(int i = 0; i < count; i++) {
-            Stock.Builder builder = new Stock.Builder(maxCycles);
-            builder.priceRangeOf(25, 100)
-                   .hasAvailable(100)
-                   .volatilityRangeOf(-1, 1)
-                   .driftRangeOf(.01, .5);
-            Stock test = builder.build();
+        Stock.Builder builder = new Stock.Builder(maxCycles);
+        builder.priceRangeOf(25, 100)
+               .hasAvailable(100)
+               .volatilityRangeOf(-1, 1)
+               .driftRangeOf(.01, .5);
 
-            System.out.println(test.id);
-            Util.addArrayAsColumn(test.getPriceHistory(), prices, i);
+        stocks = builder.buildMulti(count);
+
+        for(int i = 0; i < stocks.size(); i++) {
+            Stock curr = stocks.get(i);
+            System.out.println(curr.id);
+            Util.addArrayAsColumn(curr.getPriceHistory(), prices, i);
         }
         Util.writeMatrixToFile(prices, "stocks");
     }
@@ -152,6 +158,17 @@ public class Stock {
             return this;
         }
         
+        public String toString() {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.append("ID: " + stock.id);
+            stringBuilder.append("\nMax Cycles: " + stock.maxCycles);
+            stringBuilder.append("\nPrice Range: " + this.minPrice + " " + this.maxPrice);
+            stringBuilder.append("\nVolatility Range: " + this.minVol + " " + this.maxVol);
+            stringBuilder.append("\nDrift Range: " + this.minDrift + " " + this.maxDrift);
+
+            return stringBuilder.toString();
+        }
 
         public Stock build() {
             if(!validate()) {
@@ -162,6 +179,31 @@ public class Stock {
                 stock.fillPriceHistory();
                 return stock;
             }
+        }
+
+        public List<Stock> buildMulti(int num) {
+            List<Stock> stocks = new ArrayList<Stock>();
+
+            if(!validate()) {
+                return null;
+            }
+            else {
+                for(int i = 0; i < num; i++) {
+                    // copy params of the current builder over to a new one
+                    Builder temp = new Builder(stock.maxCycles);
+                    temp.hasAvailable(stock.numAvailable);
+                    temp.priceRangeOf(this.minPrice, this.maxPrice);
+                    temp.volatilityRangeOf(this.minVol, this.maxVol);
+                    temp.driftRangeOf(this.minDrift, this.maxDrift);
+
+                    temp.genRandomParams();
+                    temp.stock.fillPriceHistory();
+
+                    stocks.add(temp.stock);
+                }
+                return stocks;
+            }
+
         }
 
         private void genRandomParams() {

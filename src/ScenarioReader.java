@@ -26,11 +26,11 @@ public class ScenarioReader {
                 // do something
             }
 
-            System.out.println("children");
+            System.out.println("\nchildren");
             NodeList marketChildren = market.getChildNodes();
             for(int i = 0; i < marketChildren.getLength(); i++) {
                 Node child = marketChildren.item(i);
-                System.out.println(child.getNodeName());
+                    System.out.println("name: " + child.getNodeName() + "\nlocal name: " + child.getLocalName() + "\nvalue: " + child.getNodeValue() + "\ntype: " + child.getNodeType() + "\n");
                 // do something
             }
         }
