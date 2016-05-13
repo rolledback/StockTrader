@@ -113,6 +113,12 @@ public class Market implements Runnable {
         stocks.put(stock.id, stock);
     }
 
+    public void addStocks(List<Stock> stockList) {
+        for(Stock stock : stockList) {
+            stocks.put(stock.id, stock);
+        }
+    }
+
     public void run() {
         running = true;
         while(cycleNum < maxCycles) {
