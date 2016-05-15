@@ -1,0 +1,21 @@
+apply plugin: 'java'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'StockTrader'
+    }
+}
+
+task consoleJar(type: Jar) {
+    baseName = 'Console'
+    manifest {
+        attributes 'Main-Class': 'StockTrader'
+    }
+}
+
+task stockJar(type: Jar) {
+    baseName = 'Stock'
+    manifest {
+        attributes 'Main-Class': 'Stock'
+    }
+}
