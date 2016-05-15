@@ -6,16 +6,32 @@ jar {
     }
 }
 
-task consoleJar(type: Jar) {
-    baseName = 'Console'
+task ConsoleClient(type: Jar) {
+    baseName = 'ConsoleClient'
     manifest {
-        attributes 'Main-Class': 'StockTrader'
+        attributes 'Main-Class': 'ConsoleClient'
     }
+    with jar
 }
 
-task stockJar(type: Jar) {
+task HumanClient(type: Jar) {
+    baseName = 'HumanClient'
+    manifest {
+        attributes 'Main-Class': 'HumanClient'
+    }
+    with jar
+}
+
+task Stock(type: Jar) {
     baseName = 'Stock'
     manifest {
         attributes 'Main-Class': 'Stock'
     }
+    with jar
+}
+
+tasks.build.doLast() {
+    tasks.ConsoleClient.execute()
+    tasks.HumanClient.execute()
+    tasks.Stock.execute()
 }

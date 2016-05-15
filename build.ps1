@@ -1,3 +1,6 @@
+# This script does not currently function. If you need to use it, it can be run in src\main\java, but that action is not currently supported.
+# At this time it is being kept around for ease of reference. It will be removed in the future.
+
 param(
     [switch] $console,
     [switch] $serverTest,
