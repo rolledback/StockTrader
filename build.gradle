@@ -1,6 +1,22 @@
 apply plugin: 'java'
 
+repositories{
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
+}
+
 jar {
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     manifest {
         attributes 'Main-Class': 'StockTrader'
     }
@@ -8,6 +24,14 @@ jar {
 
 task ConsoleClient(type: Jar) {
     baseName = 'ConsoleClient'
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     manifest {
         attributes 'Main-Class': 'ConsoleClient'
     }
@@ -16,6 +40,14 @@ task ConsoleClient(type: Jar) {
 
 task HumanClient(type: Jar) {
     baseName = 'HumanClient'
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     manifest {
         attributes 'Main-Class': 'HumanClient'
     }
@@ -24,6 +56,14 @@ task HumanClient(type: Jar) {
 
 task Stock(type: Jar) {
     baseName = 'Stock'
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     manifest {
         attributes 'Main-Class': 'Stock'
     }
@@ -31,6 +71,12 @@ task Stock(type: Jar) {
 }
 
 tasks.build.doLast() {
+    tasks.ConsoleClient.execute()
+    tasks.HumanClient.execute()
+    tasks.Stock.execute()
+}
+
+tasks.assemble.doLast() {
     tasks.ConsoleClient.execute()
     tasks.HumanClient.execute()
     tasks.Stock.execute()

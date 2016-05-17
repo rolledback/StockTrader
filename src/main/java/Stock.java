@@ -4,6 +4,8 @@ import java.util.List;
 import java.lang.StringBuilder;
 import java.io.*;
 
+import com.google.gson.Gson;
+
 public class Stock {
 
     public static void main(String[] args) {
@@ -200,6 +202,9 @@ public class Stock {
                     temp.stock.fillPriceHistory();
 
                     stocks.add(temp.stock);
+
+                    Gson gson = new Gson();
+                    gson.toJson(temp.stock, System.out);
                 }
                 return stocks;
             }
