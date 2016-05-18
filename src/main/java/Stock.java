@@ -5,6 +5,7 @@ import java.lang.StringBuilder;
 import java.io.*;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 public class Stock {
 
@@ -33,16 +34,23 @@ public class Stock {
 
     private static final double timeStep = 0.01;
     private static final Random rand = new Random();
+    private static final Gson gson = new Gson();
 
     public int numAvailable;
     public String id;
-    public int maxCycles;
-    private double[] priceHistory;
-    private double startingPrice;
-    private double volatility;
-    private double drift;
+    public transient int maxCycles;
+    private transient double[] priceHistory;
+    private transient double startingPrice;
+    private transient double volatility;
+    private transient double drift;
 
     private Stock() {}
+
+    public String getJSONRep(int tick) {
+        JsonElement jsonElement = gson.toJsonTree(this);
+        jsonElement.getAsJsonObject().addProperty("currentPrice", priceHistory[tick]);
+        return gson.toJson(jsonElement).toString();
+    }
 
     public double[] getPriceHistory() {
         return priceHistory;

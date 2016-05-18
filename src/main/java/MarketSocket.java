@@ -88,6 +88,10 @@ public class MarketSocket implements Runnable {
                 }
                 else if(message.equals("STOCKS")) {
                     Map<String, Object[]> stockValues = owner.getStocks();
+
+                    // this will be used in the future
+                    owner.getStocksInJson();
+
                     responseBuilder.append("{");
                     for(Map.Entry<String, Object[]> entry : stockValues.entrySet()) {
                         responseBuilder.append("[");

@@ -8,8 +8,6 @@ import java.lang.StringBuilder;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import com.google.gson.Gson;
-
 public class Market implements Runnable {
     
     private final String id = Util.MARKET_ID;
@@ -244,10 +242,19 @@ public class Market implements Runnable {
     public synchronized Map<String, Object[]> getStocks() {
         Map<String, Object[]> stockToValue = new HashMap<String, Object[]>();
         for(Map.Entry<String, Stock> entry : stocks.entrySet()) {
-            Gson gson = new Gson();
-            gson.toJson(entry.getValue(), System.out);
+            System.out.println(entry.getValue().getJSONRep(cycleNum));
             stockToValue.put(entry.getKey(), new Object[] {entry.getValue().getValue(cycleNum), entry.getValue().numAvailable});
         }
         return stockToValue;
+    }
+
+    // returns array containing JSON representation of each stock
+    public synchronized ArrayList<String> getStocksInJson() {
+        ArrayList<String> stocksInJSON = new ArrayList<String>();
+        for(Stock stock : stocks.values()) {
+            stocksInJSON.add(stock.getJSONRep(cycleNum));
+        }
+        System.out.println(stocksInJSON);
+        return stocksInJSON;
     }
 }
