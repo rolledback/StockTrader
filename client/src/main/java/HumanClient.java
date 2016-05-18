@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 public class HumanClient {
 
     public static void main(String[] args) {
@@ -27,21 +29,20 @@ public class HumanClient {
         catch(Exception e) { System.out.println(e.toString()); }
     }
 
+    private Gson gson = new Gson();
+
     private Socket market;
     private DataOutputStream outStream;
     private DataInputStream inStream;
     private String id;
 
-    private Map<String, Object[]> marketState;
+    // private  marketState;
 
     private final String marketAddress = "127.0.0.1";
     private final int marketPort = 5656;
 
-    private Pattern stocksSummaryPattern = Pattern.compile("\\[([\\w-]+)\\,\\[([-+]?[0-9]*\\.?[0-9]*)\\,(\\d+)\\]\\]");
-    private Matcher match;
-
     public HumanClient() throws IOException {
-        marketState = new HashMap<String, Object[]>();
+        // marketState = new HashMap<String, Object[]>();
 
         System.out.println("Connecting to market at " + marketAddress + " on port " + marketPort);
 
@@ -78,25 +79,21 @@ public class HumanClient {
     }
 
     public void updateStockRecords(String getStocksResponse) {
-        match = stocksSummaryPattern.matcher(getStocksResponse);
-        while(match.find()) {
-            String stockSummary = getStocksResponse.substring(match.start(), match.end());
-            String stockId = match.group(1);
-            double currentValue = Double.parseDouble(match.group(2));
-            int numAvailable = Integer.parseInt(match.group(3));
-
-            marketState.put(stockId, new Object[] {currentValue, numAvailable});
+        System.out.println(getStocksResponse);
+        String[] stocks = getStocksResponse.split(",");
+        for(int i = 0; i < stocks.length; i++) {
+            System.out.println(stocks[i]);
         }
     }
 
     public void printRecords() {
         System.out.println();
-        for(Map.Entry<String, Object[]> entry : marketState.entrySet()) {
-            System.out.println("Stock ID: " + entry.getKey());
-            System.out.println("Current price: " + (Double)entry.getValue()[0]);
-            System.out.println("Number available: " + (Integer)entry.getValue()[1]);
-            System.out.println();
-        }
+        // for(Map.Entry<String, Object[]> entry : marketState.entrySet()) {
+        //     System.out.println("Stock ID: " + entry.getKey());
+        //     System.out.println("Current price: " + (Double)entry.getValue()[0]);
+        //     System.out.println("Number available: " + (Integer)entry.getValue()[1]);
+        //     System.out.println();
+        // }
     }
 
     public String getStocks() throws IOException {
@@ -118,14 +115,14 @@ public class HumanClient {
     }
 
     public void buyRandomStock() throws IOException {
-        List<String> keysAsArray = new ArrayList<String>(marketState.keySet());
-        Random r = new Random();
+        // List<String> keysAsArray = new ArrayList<String>(marketState.keySet());
+        // Random r = new Random();
 
-        String randId = keysAsArray.get(r.nextInt(keysAsArray.size()));
-        int amount = r.nextInt((Integer)marketState.get(randId)[1]);
+        // String randId = keysAsArray.get(r.nextInt(keysAsArray.size()));
+        // int amount = r.nextInt((Integer)marketState.get(randId)[1]);
 
-        System.out.print("Buying " + amount + " of " + randId + " (");
+        // System.out.print("Buying " + amount + " of " + randId + " (");
 
-        System.out.println(buyStock(randId, amount) + ")");
+        // System.out.println(buyStock(randId, amount) + ")");
     }
 }

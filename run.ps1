@@ -8,20 +8,20 @@ param(
 If ($server)
 {
     echo "Starting server.`n"
-    start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java -jar .\build\libs\StockTrader.jar"'
+    start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java -jar .\server\build\libs\StockTrader.jar"'
     sleep(1)
     echo "Starting human client.`n"
-    start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java -jar .\build\libs\HumanClient.jar"'
+    start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java -jar .\client\build\libs\HumanClient.jar"'
     If ($console)
     {
         echo "Starting console.`n"
-        start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java -jar .\build\libs\ConsoleClient.jar"'
+        start-process powershell.exe -argument '-noexit -nologo -noprofile -executionpolicy bypass -command java -jar .\console\build\libs\ConsoleClient.jar"'
     }
 }
 ElseIf ($stock)
 {
     echo "Running stock test.`n"
-    java -jar .\build\libs\Stock.jar
+    java -jar .\server\build\libs\Stock.jar
 }
 ElseIf ($scenario)
 {

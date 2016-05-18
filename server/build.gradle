@@ -1,0 +1,38 @@
+dependencies {
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
+}
+
+jar {
+    baseName = 'StockTrader'
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'StockTrader'
+    }
+}
+
+task Stock(type: Jar) {
+    baseName = 'Stock'
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'Stock'
+    }
+    with jar
+}
+
+tasks.build.doLast() {
+    tasks.Stock.execute()
+}
