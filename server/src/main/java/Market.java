@@ -254,7 +254,6 @@ public class Market implements Runnable {
         for(Stock stock : stocks.values()) {
             stocksInJSON.add(stock.getJSONRep(cycleNum));
         }
-        System.out.println(stocksInJSON);
         return stocksInJSON;
     }
 }
