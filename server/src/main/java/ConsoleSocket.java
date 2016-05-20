@@ -3,8 +3,7 @@ import java.io.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.lang.StringBuilder;
 
 public class ConsoleSocket implements Runnable {
@@ -25,20 +24,13 @@ public class ConsoleSocket implements Runnable {
     private Pattern filterLogPattern = Pattern.compile("log( -t [\\w-]+)*( -s [\\w-]+)*");
     private Matcher match;
 
-    private static Map<String, String> validCommands;
-    static {
-        validCommands = new LinkedHashMap<String, String>();
-        validCommands.put("quit", "Disconnect from the console socket.");
-        validCommands.put("help", "List all available commands.");
-        validCommands.put("debug", "Produces a full debug dump of the market.");
-        validCommands.put("start", "Start the market simulation.");
-        validCommands.put("stop", "Stop the market simulation.");
-        validCommands.put("log", "Prints out the full market's trading log.\n\tOptinal Arguments:\n\t-t <trader id to match>\n\t-s <stock id to match>");
-    }
+    private List<ConsoleCommand> commands;
 
     public ConsoleSocket(Market owner) throws IOException {
         this.owner = owner;
         this.authenticated = false;
+
+        setupCommandsList();
 
         try {
             serverSocket = new ServerSocket(consolePort);
@@ -116,52 +108,59 @@ public class ConsoleSocket implements Runnable {
         return tag;
     }
 
-    private String handleCommand(String command) {
-        StringBuilder responseBuilder = new StringBuilder();
+    public String handleCommand(String cmd) {
+        for(ConsoleCommand command : commands) {
+            if(cmd.equals(command.command)) {
+                return command.callback.onInvoke();
+            }
+        }
+        return "Invalid command.";
+    }
 
-        if(command.equals("quit")) {
-            return "";
-        }
-        else if(command.equals("help")) {
-            for (Map.Entry<String,String> entry : validCommands.entrySet()) {
-                responseBuilder.append(entry.getKey() + ": " + entry.getValue());
-                responseBuilder.append("\n");
+    public void setupCommandsList() {
+        commands = new ArrayList<ConsoleCommand>();
+        commands.add(new ConsoleCommand("quit", "Disconnect from the console socket.", new ConsoleCommand.CommandCallback() {
+            public String onInvoke() {
+                return "";
             }
-            return responseBuilder.toString();
-        }
-        else if(command.equals("debug")) {
-            return owner.debugDump();
-        }
-        else if(command.equals("log")) {
-            return owner.tradingLog();
-        }
-        else if(command.equals("start")) {
-            boolean effect = owner.changeRunning(true);
-            if(effect) {
-                return "Simulation started.";
+        }));
+        commands.add(new ConsoleCommand("help", "List all available commands.", new ConsoleCommand.CommandCallback() {
+            public String onInvoke() {
+                StringBuilder responseBuilder = new StringBuilder();
+                for (ConsoleCommand command : commands) {
+                    responseBuilder.append(command.command + ": " + command.help);
+                    responseBuilder.append("\n");
+                }
+                return responseBuilder.toString();
             }
-            return "Simluation already running.";
-        }
-        else if(command.equals("stop")) {
-            boolean effect = owner.changeRunning(false);
-            if(effect) {
-                return "Simulation stopped.";
+        }));
+        commands.add(new ConsoleCommand("debug", "Produces a full debug dump of the market.", new ConsoleCommand.CommandCallback() {
+            public String onInvoke() {
+                return owner.debugDump();
             }
-            return "Simluation already stopped.";
-        }
-        else if((match = filterLogPattern.matcher(command)).matches()) {
-            String traderId = ""; 
-            String stockId = "";
-
-            if(match.group(1) != null) {
-                traderId = match.group(1).substring(match.group(1).lastIndexOf(' ') + 1);
+        }));
+        commands.add(new ConsoleCommand("start", "Start the market simulation.", new ConsoleCommand.CommandCallback() {
+            public String onInvoke() {
+                boolean effect = owner.changeRunning(true);
+                if(effect) {
+                    return "Simulation started.";
+                }
+                return "Simluation already running.";
             }
-            if(match.group(2) != null) {
-                stockId = match.group(2).substring(match.group(2).lastIndexOf(' ') + 1);
+        }));
+        commands.add(new ConsoleCommand("stop", "Stop the market simulation.", new ConsoleCommand.CommandCallback() {
+            public String onInvoke() {
+                boolean effect = owner.changeRunning(false);
+                if(effect) {
+                    return "Simulation stopped.";
+                }
+                return "Simluation already stopped.";
             }
-
-            return owner.tradingLog(traderId, stockId);
-        }
-        return "Invalid command. Run \"help\" for a list of valid commands.";
+        }));
+        commands.add(new ConsoleCommand("log", "Prints out the full market's trading log.\n\tOptinal Arguments:\n\t-t <trader id to match>\n\t-s <stock id to match>", new ConsoleCommand.CommandCallback() {
+            public String onInvoke() {
+                return owner.tradingLog();
+            }
+        }));
     }
 }

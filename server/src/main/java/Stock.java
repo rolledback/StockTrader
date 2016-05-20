@@ -78,7 +78,7 @@ public class Stock {
         priceHistory[0] = startingPrice;
         for(int i = 1; i < maxCycles; i++) {
             totalDrift = (priceHistory[i - 1] * drift * timeStep);
-            uncertainty=  (priceHistory[i - 1] * volatility * rand.nextGaussian() * Math.sqrt(timeStep));
+            uncertainty =  (priceHistory[i - 1] * volatility * rand.nextGaussian() * Math.sqrt(timeStep));
             delta = totalDrift + uncertainty;
 
             priceHistory[i] = priceHistory[i - 1] + delta;
@@ -210,9 +210,6 @@ public class Stock {
                     temp.stock.fillPriceHistory();
 
                     stocks.add(temp.stock);
-
-                    Gson gson = new Gson();
-                    gson.toJson(temp.stock, System.out);
                 }
                 return stocks;
             }
