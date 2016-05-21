@@ -1,3 +1,6 @@
+import java.util.Map;
+import java.util.HashMap;
+
 public class ConsoleCommand {
 
     public String command;
@@ -10,9 +13,13 @@ public class ConsoleCommand {
         this.callback = callback;
     }
 
-    abstract static class CommandCallback {
+    public abstract static class CommandCallback {
+
+        public Map<String, String> args = new HashMap<String, String>();
 
         abstract public String onInvoke();
+
+        abstract public boolean matchesCommand(String candidiate);
 
     }
     

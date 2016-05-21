@@ -230,6 +230,7 @@ public class Market implements Runnable {
 
     public String tradingLog(String traderId, String stockId) {
         StringBuilder tmp = new StringBuilder();
+        tmp.append("Trading Log:\n");
         for(ActionRecord record : tradingRecord) {
             if((traderId == "" || record.involvesTrader(traderId)) && (stockId == "" || record.involvesStock(stockId))) {
                 tmp.append(record.toString() + "\n");

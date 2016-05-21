@@ -21,9 +21,6 @@ public class ConsoleSocket implements Runnable {
     private final String consoleKey = "SECRET_KEY";
     private boolean authenticated;
 
-    private Pattern filterLogPattern = Pattern.compile("log( -t [\\w-]+)*( -s [\\w-]+)*");
-    private Matcher match;
-
     private List<ConsoleCommand> commands;
 
     public ConsoleSocket(Market owner) throws IOException {
@@ -110,7 +107,7 @@ public class ConsoleSocket implements Runnable {
 
     public String handleCommand(String cmd) {
         for(ConsoleCommand command : commands) {
-            if(cmd.equals(command.command)) {
+            if(command.callback.matchesCommand(cmd)) {
                 return command.callback.onInvoke();
             }
         }
@@ -123,6 +120,10 @@ public class ConsoleSocket implements Runnable {
             public String onInvoke() {
                 return "";
             }
+
+            public boolean matchesCommand(String candidate) {
+                return candidate.equals("quit");
+            }
         }));
         commands.add(new ConsoleCommand("help", "List all available commands.", new ConsoleCommand.CommandCallback() {
             public String onInvoke() {
@@ -133,10 +134,18 @@ public class ConsoleSocket implements Runnable {
                 }
                 return responseBuilder.toString();
             }
+
+            public boolean matchesCommand(String candidate) {
+                return candidate.equals("help");
+            }
         }));
         commands.add(new ConsoleCommand("debug", "Produces a full debug dump of the market.", new ConsoleCommand.CommandCallback() {
             public String onInvoke() {
                 return owner.debugDump();
+            }
+
+            public boolean matchesCommand(String candidate) {
+                return candidate.equals("debug");
             }
         }));
         commands.add(new ConsoleCommand("start", "Start the market simulation.", new ConsoleCommand.CommandCallback() {
@@ -147,6 +156,10 @@ public class ConsoleSocket implements Runnable {
                 }
                 return "Simluation already running.";
             }
+
+            public boolean matchesCommand(String candidate) {
+                return candidate.equals("start");
+            }
         }));
         commands.add(new ConsoleCommand("stop", "Stop the market simulation.", new ConsoleCommand.CommandCallback() {
             public String onInvoke() {
@@ -156,10 +169,36 @@ public class ConsoleSocket implements Runnable {
                 }
                 return "Simluation already stopped.";
             }
+
+            public boolean matchesCommand(String candidate) {
+                return candidate.equals("stop");
+            }
+
         }));
         commands.add(new ConsoleCommand("log", "Prints out the full market's trading log.\n\tOptinal Arguments:\n\t-t <trader id to match>\n\t-s <stock id to match>", new ConsoleCommand.CommandCallback() {
             public String onInvoke() {
-                return owner.tradingLog();
+                return owner.tradingLog(args.get("-t"), args.get("-s"));
+            }
+
+            public boolean matchesCommand(String candidate) {
+                Pattern filterLogPattern = Pattern.compile("log( -t [\\w-]+)*( -s [\\w-]+)*");
+                Matcher match;
+
+                if((match = filterLogPattern.matcher(candidate)).matches()) {
+                    args.put("-t", "");
+                    args.put("-s", "");
+
+                    if(match.group(1) != null) {
+                        args.put("-t", match.group(1).substring(match.group(1).lastIndexOf(' ') + 1));
+                    }
+                    if(match.group(2) != null) {
+                        args.put("-s", match.group(2).substring(match.group(2).lastIndexOf(' ') + 1));
+                    }
+                    return true;
+                }
+                else {
+                    return candidate.equals("log");
+                }
             }
         }));
     }
