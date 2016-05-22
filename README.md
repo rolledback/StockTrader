@@ -9,5 +9,5 @@ Build & Execution
 To run the project, make sure that you have Gradle installed on your machine. Then, simply run `gradle build` at the root of the project to build the project. You may then use the `run.ps1` script to execute the project. Flags for said script are as follows.
 
 * `server`: Starts the server and an example human client. Each will open in a new window.
-* `console`: Only has a purpose when used along with the `server` flag. Adding this flag will also cause the console client to be started in a new window. It will automatically connect to the server.
+* `console`: Only has a purpose when used along with the `server` flag. Adding this flag will also cause the console client to be started in a new window. It will automatically connect to the server. The console can be used to view debug information at run time and start/stop the simulation. More functionality will be added at a later date. Currently, the console sends output back already formatted, but this will soon change to a JSON format to allow for console customization.
 * `stock`: Runs code found in the main of `Stock.java`.
